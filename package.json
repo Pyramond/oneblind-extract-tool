@@ -1,0 +1,17 @@
+{
+  "name": "oneblind-extract",
+  "version": "1.0.0",
+  "description": "Extract data from oneblind docker container",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "bin": {
+    "copyFile": "./index.js"
+  },
+  "author": "Dayamond",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "dockerode": "^4.0.2"
+  }
+}
