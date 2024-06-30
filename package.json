@@ -4,7 +4,8 @@
   "description": "Extract data from oneblind docker container",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "pkg . --output copyfile"
   },
   "bin": {
     "copyFile": "./index.js"
