@@ -1,29 +1,26 @@
-const Docker = require("dockerode")
-const fs = require("fs")
-const path = require("path")
-const tar = require("tar-stream")
-const readline = require("readline")
+import Docker from "dockerode"
+import fs from "fs"
+import path from "path"
+import tar from "tar-stream"
+import readline from "readline"
+import chalk from "chalk"
 
 
 const DATABASE_PATH = "/app/src/static/database.db"
+const AVATARS_PATH = "/app/src/static/avatars/custom"
 const ENV_PATH = "/app/.env"
+
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 })
 
-const pause = () => new Promise((resolve) => {
-    rl.question("Appuyez sur Entrée pour terminer...", () => {
-        rl.close();
-        resolve();
-    });
-});
 
 const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
 
-async function copyFiles(containerFilePath, container, extractPath) {
+async function copyFiles(containerFilePath, container, extractPath, name) {
     try {
         const stream = await container.getArchive({ path: containerFilePath})
         const extract = tar.extract()
@@ -41,7 +38,7 @@ async function copyFiles(containerFilePath, container, extractPath) {
         })
 
         extract.on("finish", () => {
-            console.log(`${container.id}: extraction terminée`)
+            console.log(chalk.green(`${container.id}`) + ":" + chalk.cyan(`${name}`) + ` => extraction terminée`)
         })
 
         stream.pipe(extract)
@@ -55,13 +52,15 @@ async function main() {
     const backContainerId = await question("Entrez le nom ou l'id du conteneur Docker correspondant au serveur BACKEND de Oneblind: ")
     const frontContainerId = await question("Entrez le nom ou l'id du conteneur Docker correspondant au serveur FRONTEND de Oneblind: ")
     const extractPath = await question("Entrez le chemin de destination des fichiers: ")
+    console.log("\n")
 
     const docker = new Docker({ host: '127.0.0.1', port: 2375 });
     const backContainer = docker.getContainer(backContainerId);
     const frontContainer = docker.getContainer(frontContainerId)
     
-    await copyFiles(DATABASE_PATH, backContainer, extractPath)
-    await copyFiles(ENV_PATH, frontContainer, extractPath)
+    await copyFiles(DATABASE_PATH, backContainer, extractPath, "database")
+    await copyFiles(AVATARS_PATH, backContainer, extractPath, "avatars")
+    await copyFiles(ENV_PATH, frontContainer, extractPath, "env")
 
     process.stdin.resume();
 
